@@ -17,6 +17,10 @@
     button:hover, .source:hover { background:rgba(255,255,255,.2); }
     main { padding:2rem 0 5rem; }
     .year { margin:2.4rem 0 1rem; font-size:1.75rem; color:var(--accent); }
+    .year-toggle { width:100%; display:flex; align-items:center; justify-content:space-between; padding:0; border:0; border-radius:0; color:inherit; background:transparent; text-align:left; font:inherit; }
+    .year-toggle:hover { background:var(--accent-soft); }
+    .year-toggle::after { content:"＋"; }
+    .year-group.open .year-toggle::after { content:"−"; }
     .month { margin:.8rem 0; overflow:hidden; border:1px solid var(--line); border-radius:14px; background:var(--card); box-shadow:0 4px 18px rgba(57,48,34,.05); }
     .month-toggle { width:100%; display:flex; align-items:center; justify-content:space-between; border:0; border-radius:0; padding:1rem 1.2rem; color:var(--ink); background:transparent; text-align:left; font-weight:700; }
     .month-toggle:hover { background:var(--accent-soft); }
@@ -48,7 +52,9 @@
     </div>
   </header>
   <main>
-    <h2 class="year">2024 年</h2>
+    <section class="year-group">
+      <h2 class="year"><button class="year-toggle" type="button" aria-expanded="false" aria-controls="year-2024">2024 年</button></h2>
+      <div class="year-content" id="year-2024" hidden>
     <div class="month">
       <button class="month-toggle" type="button" aria-expanded="false" aria-controls="month-202405"><span>2024 年 5 月</span><span class="count">31 天</span></button>
       <div class="month-content" id="month-202405" hidden>
@@ -350,7 +356,11 @@
         </ul>
       </div>
     </div>
-    <h2 class="year">2025 年</h2>
+      </div>
+    </section>
+    <section class="year-group">
+      <h2 class="year"><button class="year-toggle" type="button" aria-expanded="false" aria-controls="year-2025">2025 年</button></h2>
+      <div class="year-content" id="year-2025" hidden>
     <div class="month">
       <button class="month-toggle" type="button" aria-expanded="false" aria-controls="month-202501"><span>2025 年 1 月</span><span class="count">31 天</span></button>
       <div class="month-content" id="month-202501" hidden>
@@ -800,7 +810,11 @@
         </ul>
       </div>
     </div>
-    <h2 class="year">2026 年</h2>
+      </div>
+    </section>
+    <section class="year-group open">
+      <h2 class="year"><button class="year-toggle" type="button" aria-expanded="true" aria-controls="year-2026">2026 年</button></h2>
+      <div class="year-content" id="year-2026">
     <div class="month">
       <button class="month-toggle" type="button" aria-expanded="false" aria-controls="month-202601"><span>2026 年 1 月</span><span class="count">31 天</span></button>
       <div class="month-content" id="month-202601" hidden>
@@ -1137,9 +1151,17 @@
         </ul>
       </div>
     </div>
+      </div>
+    </section>
   </main>
   <footer>資料整理自 Today in History.md</footer>
   <script>
+    const years = [...document.querySelectorAll('.year-group')];
+    function setYear(year, open) {
+      year.classList.toggle('open', open);
+      year.querySelector('.year-toggle').setAttribute('aria-expanded', String(open));
+      year.querySelector('.year-content').hidden = !open;
+    }
     const months = [...document.querySelectorAll('.month')];
     function setMonth(month, open) {
       month.classList.toggle('open', open);
@@ -1147,14 +1169,26 @@
       month.querySelector('.month-content').hidden = !open;
     }
     document.addEventListener('click', event => {
+      const yearToggle = event.target.closest('.year-toggle');
+      if (yearToggle) {
+        const year = yearToggle.closest('.year-group');
+        setYear(year, !year.classList.contains('open'));
+        return;
+      }
       const toggle = event.target.closest('.month-toggle');
       if (toggle) {
         const month = toggle.closest('.month');
         setMonth(month, !month.classList.contains('open'));
       }
     });
-    document.querySelector('#expand-all').addEventListener('click', () => months.forEach(month => setMonth(month, true)));
-    document.querySelector('#collapse-all').addEventListener('click', () => months.forEach(month => setMonth(month, false)));
+    document.querySelector('#expand-all').addEventListener('click', () => {
+      years.forEach(year => setYear(year, true));
+      months.forEach(month => setMonth(month, true));
+    });
+    document.querySelector('#collapse-all').addEventListener('click', () => {
+      years.forEach(year => setYear(year, false));
+      months.forEach(month => setMonth(month, false));
+    });
   </script>
 </body>
 </html>
